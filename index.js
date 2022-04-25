@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { getAllTalkers, getTalkerId, generateToken } = require('./actions');
+const { validatePassword, validateEmail } = require('./middlewars');
 
 const app = express();
 app.use(bodyParser.json());
@@ -32,13 +33,12 @@ app.get('/talker/:id', async (req, res) => {
       return res.status(200).json(thetalkers);
 });
 
-app.post('/login', async (req, res) => {
-  const { email, password } = await req.body;
-  console.log(email);
-  if (!email || !password) {
-    return res.status(400).json({ message: 'incorrect email or password' });
+app.post('/login', validateEmail, validatePassword, (_req, res) => { 
+  try {
+    return res.status(200).json({ token: generateToken() });
+  } catch (error) {
+    console.error(error);
   }
-  return res.status(200).json({ token: generateToken() });
 });
 
 app.listen(PORT, () => {
