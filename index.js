@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getAllTalkers } = require('./actions');
+const { getAllTalkers, getTalkerId } = require('./actions');
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,12 +16,20 @@ app.get('/', (_request, response) => {
 app.get('/talker', async (_req, res) => {
   try {
     const allTalkers = await getAllTalkers();
-    console.log(allTalkers);
-    return res.status(200).send(allTalkers);
+    return res.status(200).json(allTalkers);
   } catch (error) {
     console.error(error);
-    return res.status(200).send([]);
+    return res.status(200).json([]);
   }
+});
+
+app.get('/talker/:id', async (req, res) => {
+    const { id } = req.params;
+    const thetalkers = await getTalkerId(id);
+    if (!thetalkers) {
+      return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+    } 
+      return res.status(200).json(thetalkers);
 });
 
 app.listen(PORT, () => {
