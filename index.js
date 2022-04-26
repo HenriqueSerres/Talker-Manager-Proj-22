@@ -1,7 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { getAllTalkers, getTalkerId, generateToken } = require('./actions');
-const { validatePassword, validateEmail } = require('./middlewars');
+const { getAllTalkers, getTalkerId, generateToken, addTalkers } = require('./actions');
+const { validatePassword, validateEmail,
+  validateAuthorization, validateName, validateAge,
+  validateWatchedAt, validateRate, validateTalk } = require('./middlewars');
 
 const app = express();
 app.use(bodyParser.json());
@@ -40,6 +42,27 @@ app.post('/login', validateEmail, validatePassword, (_req, res) => {
     console.error(error);
   }
 });
+
+app.post('/talker', 
+ validateAuthorization,
+ validateName,
+ validateAge,
+ validateTalk,
+ validateWatchedAt,
+ validateRate,
+  async (req, res) => {
+   const { name, age, talk } = req.body;
+   const talkers = await getAllTalkers();
+   const newTalker = {
+     name,
+     age,
+     id: (talkers.length + 1),
+     talk,
+   };
+   talkers.push(newTalker);
+   await addTalkers(talkers);
+   return res.status(201).json(newTalker);
+ });
 
 app.listen(PORT, () => {
   console.log('Online');
