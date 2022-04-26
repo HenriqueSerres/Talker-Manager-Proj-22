@@ -87,6 +87,17 @@ app.post('/talker',
     return res.status(200).json(editTalker);
   });
 
+  app.delete('/talker/:id', validateAuthorization, async (req, res) => {
+    const allTalkers = await getAllTalkers();
+    console.log(allTalkers);
+    const { id } = req.params;
+    console.log(id);
+    const othersTalkers = allTalkers.filter((talker) => talker.id !== Number(id));
+    console.log(othersTalkers);
+    await addTalkers(othersTalkers);
+    return res.status(204).end();
+  });
+
 app.listen(PORT, () => {
   console.log('Online');
 });
