@@ -26,6 +26,16 @@ app.get('/talker', async (_req, res) => {
   }
 });
 
+app.get('/talker/search', validateAuthorization, async (req, res) => {
+  const allTalkers = await getAllTalkers();
+  const name = req.query.q;
+  const filteredTalkers = allTalkers.filter((talker) => talker.name.includes(name));
+  if (!name || name === '') {
+    return res.status(200).json(allTalkers);
+  }
+  return res.status(200).json(filteredTalkers);
+});
+
 app.get('/talker/:id', async (req, res) => {
     const { id } = req.params;
     const thetalkers = await getTalkerId(id);
@@ -89,14 +99,11 @@ app.post('/talker',
 
   app.delete('/talker/:id', validateAuthorization, async (req, res) => {
     const allTalkers = await getAllTalkers();
-    console.log(allTalkers);
     const { id } = req.params;
-    console.log(id);
     const othersTalkers = allTalkers.filter((talker) => talker.id !== Number(id));
-    console.log(othersTalkers);
     await addTalkers(othersTalkers);
     return res.status(204).end();
-  });
+  }); 
 
 app.listen(PORT, () => {
   console.log('Online');
